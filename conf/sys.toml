@@ -1,0 +1,9 @@
+[db]
+type = 'mysql'
+url = 'root:wshwoaini@/software?charset=utf8&parseTime=true'
+
+
+[static]
+path = './assets'
+
+
