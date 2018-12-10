@@ -1,13 +1,13 @@
 package router
 
 import (
-	"auto_fertilizer_back/pkg/comm/model"
-	"auto_fertilizer_back/pkg/web/handler"
-	"auto_fertilizer_back/pkg/web/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/go-playground/validator.v8"
+	"software_experiment/pkg/comm/model"
+	"software_experiment/pkg/web/handler"
+	"software_experiment/pkg/web/middleware"
 )
 
 func GetRouter() *gin.Engine {
@@ -26,7 +26,7 @@ func GetRouter() *gin.Engine {
 
 	api := router.Group("/api")
 	api.Use(middleware.AuthMiddleware.MiddlewareFunc())
-	api.Use(middleware.CreateByMiddleWare())
+	api.Use(middleware.CreatedByMiddleWare())
 	api.Use(middleware.DummyMiddleware())
 	api.Use(middleware.ShopLimitMiddle())
 	{

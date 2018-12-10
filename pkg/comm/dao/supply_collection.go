@@ -2,29 +2,29 @@ package dao
 
 import (
 	"context"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	db "software_experiment/pkg/comm/database"
 	"software_experiment/pkg/web/plugin"
 )
 
-type Information struct {
+type SupplyCollection struct {
 	gorm.Model
-	Username string `gorm:"type:varchar(32);not null"`
-	Content  string `gorm:"type:Text"`
-	Name     string `gorm:"type:varchar(32);not null;unique"`
-	VisitNum int    `gorm:"default=0"`
+	CollectedName string `gorm:"type:varchar(32);not null"`
+	Username      string `gorm:"type:varchar(32);not null"`
+	CollectedId   uint   `gorm:"not null"`
 }
 
 func init() {
-	if !db.SqlDB.HasTable("informations") {
-		db.SqlDB.CreateTable(&Information{})
+	if !db.SqlDB.HasTable("supply_collections") {
+		db.SqlDB.CreateTable(&SupplyCollection{})
 	} else {
-		db.SqlDB.AutoMigrate(&Information{})
+		db.SqlDB.AutoMigrate(&SupplyCollection{})
 	}
 }
 
-func GetInformationById(ctx context.Context, queryMap map[string][]string, unscoped bool) (*Information, error) {
-	var supplyCollection Information
+func GetSupplyCollectionById(ctx context.Context, queryMap map[string][]string, unscoped bool) (*SupplyCollection, error) {
+	var supplyCollection SupplyCollection
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -33,7 +33,7 @@ func GetInformationById(ctx context.Context, queryMap map[string][]string, unsco
 	default:
 		sql = db.SqlDB
 	}
-	sql, num, err := plugin.ProcessQuery(sql.Table("informations"), queryMap, "informations")
+	sql, num, err := plugin.ProcessQuery(sql.Table("supply_collections"), queryMap, "supply_collections")
 	if err != nil {
 		return nil, plugin.CustomErr{
 			Code:        500,
@@ -45,7 +45,7 @@ func GetInformationById(ctx context.Context, queryMap map[string][]string, unsco
 		return nil, plugin.CustomErr{
 			Code:        404,
 			StatusCode:  404,
-			Information: "informations not found",
+			Information: "supply collections not found",
 		}
 	}
 	if unscoped {
@@ -63,7 +63,7 @@ func GetInformationById(ctx context.Context, queryMap map[string][]string, unsco
 	return &supplyCollection, nil
 }
 
-func QueryInformation(ctx context.Context, queryMap map[string][]string) ([]Information, int64, error) {
+func QuerySupplyCollection(ctx context.Context, queryMap map[string][]string) ([]SupplyCollection, int64, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -72,8 +72,9 @@ func QueryInformation(ctx context.Context, queryMap map[string][]string) ([]Info
 	default:
 		sql = db.SqlDB
 	}
-	supplyCollections := make([]Information, 0)
-	sql, num, err := plugin.ProcessQuery(sql.Table("informations"), queryMap, "informations")
+	supplyCollections := make([]SupplyCollection, 0)
+	fmt.Println(queryMap)
+	sql, num, err := plugin.ProcessQuery(sql.Table("supply_collections"), queryMap, "supply_collections")
 	if err != nil {
 		return nil, 0, plugin.CustomErr{
 			Code:        500,
@@ -94,7 +95,7 @@ func QueryInformation(ctx context.Context, queryMap map[string][]string) ([]Info
 	return supplyCollections, num, nil
 }
 
-func InsertInformation(ctx context.Context, supplyCollection *Information) (*Information, error) {
+func InsertSupplyCollection(ctx context.Context, supplyCollection *SupplyCollection) (*SupplyCollection, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -115,7 +116,7 @@ func InsertInformation(ctx context.Context, supplyCollection *Information) (*Inf
 	return supplyCollection, nil
 }
 
-func DeleteInformation(ctx context.Context, supplyCollection *Information) (int64, error) {
+func DeleteSupplyCollection(ctx context.Context, supplyCollection *SupplyCollection) (int64, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -137,7 +138,7 @@ func DeleteInformation(ctx context.Context, supplyCollection *Information) (int6
 	return num, nil
 }
 
-func UpdateInformation(ctx context.Context, supplyCollection *Information, updateMap map[string]interface{}) (*Information, error) {
+func UpdateSupplyCollection(ctx context.Context, supplyCollection *SupplyCollection, updateMap map[string]interface{}) (*SupplyCollection, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {

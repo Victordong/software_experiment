@@ -8,25 +8,24 @@ import (
 	"software_experiment/pkg/web/plugin"
 )
 
-type Comment struct {
+type SupplyComment struct {
 	gorm.Model
 	Username      string `gorm:"type:varchar(32);not null"`
 	Content       string `gorm:"type:Text"`
-	Type          int    `gorm:"not null"`
 	CommentedId   uint   `gorm:"not null"`
 	CommentedName string `gorm:"type:varchar(16);not null"`
 }
 
 func init() {
-	if !db.SqlDB.HasTable("comments") {
-		db.SqlDB.CreateTable(&Comment{})
+	if !db.SqlDB.HasTable("supply_comments") {
+		db.SqlDB.CreateTable(&SupplyComment{})
 	} else {
-		db.SqlDB.AutoMigrate(&Comment{})
+		db.SqlDB.AutoMigrate(&SupplyComment{})
 	}
 }
 
-func GetCommentById(ctx context.Context, queryMap map[string][]string, unscoped bool) (*Comment, error) {
-	var comment Comment
+func GetSupplyCommentById(ctx context.Context, queryMap map[string][]string, unscoped bool) (*SupplyComment, error) {
+	var supplyComment SupplyComment
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -35,7 +34,7 @@ func GetCommentById(ctx context.Context, queryMap map[string][]string, unscoped 
 	default:
 		sql = db.SqlDB
 	}
-	sql, num, err := plugin.ProcessQuery(sql.Table("comments"), queryMap, "comments")
+	sql, num, err := plugin.ProcessQuery(sql.Table("supply_comments"), queryMap, "supply_comments")
 	if err != nil {
 		return nil, plugin.CustomErr{
 			Code:        500,
@@ -47,13 +46,13 @@ func GetCommentById(ctx context.Context, queryMap map[string][]string, unscoped 
 		return nil, plugin.CustomErr{
 			Code:        404,
 			StatusCode:  404,
-			Information: "comment not found",
+			Information: "supply comments not found",
 		}
 	}
 	if unscoped {
-		err = sql.First(&comment).Error
+		err = sql.First(&supplyComment).Error
 	} else {
-		err = sql.Unscoped().First(&comment).Error
+		err = sql.Unscoped().First(&supplyComment).Error
 	}
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -62,10 +61,10 @@ func GetCommentById(ctx context.Context, queryMap map[string][]string, unscoped 
 			Information: err.Error(),
 		}
 	}
-	return &comment, nil
+	return &supplyComment, nil
 }
 
-func QueryComment(ctx context.Context, queryMap map[string][]string) ([]Comment, int64, error) {
+func QuerySupplyComment(ctx context.Context, queryMap map[string][]string) ([]SupplyComment, int64, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -74,9 +73,9 @@ func QueryComment(ctx context.Context, queryMap map[string][]string) ([]Comment,
 	default:
 		sql = db.SqlDB
 	}
-	comments := make([]Comment, 0)
+	supplyComments := make([]SupplyComment, 0)
 	fmt.Println(queryMap)
-	sql, num, err := plugin.ProcessQuery(sql.Table("comments"), queryMap, "comments")
+	sql, num, err := plugin.ProcessQuery(sql.Table("supply_comments"), queryMap, "supply_comments")
 	if err != nil {
 		return nil, 0, plugin.CustomErr{
 			Code:        500,
@@ -84,7 +83,7 @@ func QueryComment(ctx context.Context, queryMap map[string][]string) ([]Comment,
 			Information: err.Error(),
 		}
 	}
-	sql = sql.Find(&comments)
+	sql = sql.Find(&supplyComments)
 	err = sql.Error
 	if err != nil {
 		println(err.Error())
@@ -94,10 +93,10 @@ func QueryComment(ctx context.Context, queryMap map[string][]string) ([]Comment,
 			Information: err.Error(),
 		}
 	}
-	return comments, num, nil
+	return supplyComments, num, nil
 }
 
-func InsertComment(ctx context.Context, comment *Comment) (*Comment, error) {
+func InsertSupplyComment(ctx context.Context, supplyComment *SupplyComment) (*SupplyComment, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -106,7 +105,7 @@ func InsertComment(ctx context.Context, comment *Comment) (*Comment, error) {
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Create(comment)
+	sql = sql.Create(supplyComment)
 	err := sql.Error
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -115,10 +114,10 @@ func InsertComment(ctx context.Context, comment *Comment) (*Comment, error) {
 			Information: err.Error(),
 		}
 	}
-	return comment, nil
+	return supplyComment, nil
 }
 
-func DeleteComment(ctx context.Context, comment *Comment) (int64, error) {
+func DeleteSupplyComment(ctx context.Context, supplyComment *SupplyComment) (int64, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -127,7 +126,7 @@ func DeleteComment(ctx context.Context, comment *Comment) (int64, error) {
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Delete(comment)
+	sql = sql.Delete(supplyComment)
 	err := sql.Error
 	if err != nil {
 		return 0, plugin.CustomErr{
@@ -140,7 +139,7 @@ func DeleteComment(ctx context.Context, comment *Comment) (int64, error) {
 	return num, nil
 }
 
-func UpdateCrop(ctx context.Context, comment *Comment, updateMap map[string]interface{}) (*Comment, error) {
+func UpdateSupplyComment(ctx context.Context, supplyComment *SupplyComment, updateMap map[string]interface{}) (*SupplyComment, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -149,7 +148,7 @@ func UpdateCrop(ctx context.Context, comment *Comment, updateMap map[string]inte
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Model(comment).Updates(updateMap)
+	sql = sql.Model(supplyComment).Updates(updateMap)
 	err := sql.Error
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -158,5 +157,5 @@ func UpdateCrop(ctx context.Context, comment *Comment, updateMap map[string]inte
 			Information: err.Error(),
 		}
 	}
-	return comment, nil
+	return supplyComment, nil
 }

@@ -2,29 +2,29 @@ package dao
 
 import (
 	"context"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	db "software_experiment/pkg/comm/database"
 	"software_experiment/pkg/web/plugin"
 )
 
-type Information struct {
+type InformationCollection struct {
 	gorm.Model
-	Username string `gorm:"type:varchar(32);not null"`
-	Content  string `gorm:"type:Text"`
-	Name     string `gorm:"type:varchar(32);not null;unique"`
-	VisitNum int    `gorm:"default=0"`
+	CollectedName string `gorm:"type:varchar(32);not null"`
+	Username      string `gorm:"type:varchar(32);not null"`
+	CollectedId   uint   `gorm:"not null"`
 }
 
 func init() {
-	if !db.SqlDB.HasTable("informations") {
-		db.SqlDB.CreateTable(&Information{})
+	if !db.SqlDB.HasTable("information_collections") {
+		db.SqlDB.CreateTable(&InformationCollection{})
 	} else {
-		db.SqlDB.AutoMigrate(&Information{})
+		db.SqlDB.AutoMigrate(&InformationCollection{})
 	}
 }
 
-func GetInformationById(ctx context.Context, queryMap map[string][]string, unscoped bool) (*Information, error) {
-	var supplyCollection Information
+func GetInformationCollectionById(ctx context.Context, queryMap map[string][]string, unscoped bool) (*InformationCollection, error) {
+	var informationCollection InformationCollection
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -33,7 +33,7 @@ func GetInformationById(ctx context.Context, queryMap map[string][]string, unsco
 	default:
 		sql = db.SqlDB
 	}
-	sql, num, err := plugin.ProcessQuery(sql.Table("informations"), queryMap, "informations")
+	sql, num, err := plugin.ProcessQuery(sql.Table("information_collections"), queryMap, "information_collections")
 	if err != nil {
 		return nil, plugin.CustomErr{
 			Code:        500,
@@ -45,13 +45,13 @@ func GetInformationById(ctx context.Context, queryMap map[string][]string, unsco
 		return nil, plugin.CustomErr{
 			Code:        404,
 			StatusCode:  404,
-			Information: "informations not found",
+			Information: "information collections not found",
 		}
 	}
 	if unscoped {
-		err = sql.First(&supplyCollection).Error
+		err = sql.First(&informationCollection).Error
 	} else {
-		err = sql.Unscoped().First(&supplyCollection).Error
+		err = sql.Unscoped().First(&informationCollection).Error
 	}
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -60,10 +60,10 @@ func GetInformationById(ctx context.Context, queryMap map[string][]string, unsco
 			Information: err.Error(),
 		}
 	}
-	return &supplyCollection, nil
+	return &informationCollection, nil
 }
 
-func QueryInformation(ctx context.Context, queryMap map[string][]string) ([]Information, int64, error) {
+func QueryInformationCollection(ctx context.Context, queryMap map[string][]string) ([]InformationCollection, int64, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -72,8 +72,9 @@ func QueryInformation(ctx context.Context, queryMap map[string][]string) ([]Info
 	default:
 		sql = db.SqlDB
 	}
-	supplyCollections := make([]Information, 0)
-	sql, num, err := plugin.ProcessQuery(sql.Table("informations"), queryMap, "informations")
+	informationCollections := make([]InformationCollection, 0)
+	fmt.Println(queryMap)
+	sql, num, err := plugin.ProcessQuery(sql.Table("information_collections"), queryMap, "information_collections")
 	if err != nil {
 		return nil, 0, plugin.CustomErr{
 			Code:        500,
@@ -81,7 +82,7 @@ func QueryInformation(ctx context.Context, queryMap map[string][]string) ([]Info
 			Information: err.Error(),
 		}
 	}
-	sql = sql.Find(&supplyCollections)
+	sql = sql.Find(&informationCollections)
 	err = sql.Error
 	if err != nil {
 		println(err.Error())
@@ -91,10 +92,10 @@ func QueryInformation(ctx context.Context, queryMap map[string][]string) ([]Info
 			Information: err.Error(),
 		}
 	}
-	return supplyCollections, num, nil
+	return informationCollections, num, nil
 }
 
-func InsertInformation(ctx context.Context, supplyCollection *Information) (*Information, error) {
+func InsertInformationCollection(ctx context.Context, informationCollection *InformationCollection) (*InformationCollection, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -103,7 +104,7 @@ func InsertInformation(ctx context.Context, supplyCollection *Information) (*Inf
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Create(supplyCollection)
+	sql = sql.Create(informationCollection)
 	err := sql.Error
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -112,10 +113,10 @@ func InsertInformation(ctx context.Context, supplyCollection *Information) (*Inf
 			Information: err.Error(),
 		}
 	}
-	return supplyCollection, nil
+	return informationCollection, nil
 }
 
-func DeleteInformation(ctx context.Context, supplyCollection *Information) (int64, error) {
+func DeleteInformationCollection(ctx context.Context, informationCollection *InformationCollection) (int64, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -124,7 +125,7 @@ func DeleteInformation(ctx context.Context, supplyCollection *Information) (int6
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Delete(supplyCollection)
+	sql = sql.Delete(informationCollection)
 	err := sql.Error
 	if err != nil {
 		return 0, plugin.CustomErr{
@@ -137,7 +138,7 @@ func DeleteInformation(ctx context.Context, supplyCollection *Information) (int6
 	return num, nil
 }
 
-func UpdateInformation(ctx context.Context, supplyCollection *Information, updateMap map[string]interface{}) (*Information, error) {
+func UpdateInformationCollection(ctx context.Context, informationCollection *InformationCollection, updateMap map[string]interface{}) (*InformationCollection, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -146,7 +147,7 @@ func UpdateInformation(ctx context.Context, supplyCollection *Information, updat
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Model(supplyCollection).Updates(updateMap)
+	sql = sql.Model(informationCollection).Updates(updateMap)
 	err := sql.Error
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -155,5 +156,5 @@ func UpdateInformation(ctx context.Context, supplyCollection *Information, updat
 			Information: err.Error(),
 		}
 	}
-	return supplyCollection, nil
+	return informationCollection, nil
 }

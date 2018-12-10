@@ -1,12 +1,12 @@
 package database
 
 import (
-	_ "auto_fertilizer_back/pkg/comm/utils"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/spf13/viper"
 	"log"
+	_ "software_experiment/pkg/comm/utils"
 )
 
 var SqlDB *gorm.DB

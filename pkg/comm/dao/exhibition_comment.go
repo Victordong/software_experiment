@@ -2,29 +2,30 @@ package dao
 
 import (
 	"context"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	db "software_experiment/pkg/comm/database"
 	"software_experiment/pkg/web/plugin"
 )
 
-type Information struct {
+type ExhibitionComment struct {
 	gorm.Model
-	Username string `gorm:"type:varchar(32);not null"`
-	Content  string `gorm:"type:Text"`
-	Name     string `gorm:"type:varchar(32);not null;unique"`
-	VisitNum int    `gorm:"default=0"`
+	Username      string `gorm:"type:varchar(32);not null"`
+	Content       string `gorm:"type:Text"`
+	CommentedId   uint   `gorm:"not null"`
+	CommentedName string `gorm:"type:varchar(16);not null"`
 }
 
 func init() {
-	if !db.SqlDB.HasTable("informations") {
-		db.SqlDB.CreateTable(&Information{})
+	if !db.SqlDB.HasTable("exhibition_comments") {
+		db.SqlDB.CreateTable(&ExhibitionComment{})
 	} else {
-		db.SqlDB.AutoMigrate(&Information{})
+		db.SqlDB.AutoMigrate(&ExhibitionComment{})
 	}
 }
 
-func GetInformationById(ctx context.Context, queryMap map[string][]string, unscoped bool) (*Information, error) {
-	var supplyCollection Information
+func GetExhibitionCommentById(ctx context.Context, queryMap map[string][]string, unscoped bool) (*ExhibitionComment, error) {
+	var exhibitionComment ExhibitionComment
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -33,7 +34,7 @@ func GetInformationById(ctx context.Context, queryMap map[string][]string, unsco
 	default:
 		sql = db.SqlDB
 	}
-	sql, num, err := plugin.ProcessQuery(sql.Table("informations"), queryMap, "informations")
+	sql, num, err := plugin.ProcessQuery(sql.Table("exhibition_collections"), queryMap, "exhibition_comments")
 	if err != nil {
 		return nil, plugin.CustomErr{
 			Code:        500,
@@ -45,13 +46,13 @@ func GetInformationById(ctx context.Context, queryMap map[string][]string, unsco
 		return nil, plugin.CustomErr{
 			Code:        404,
 			StatusCode:  404,
-			Information: "informations not found",
+			Information: "comment not found",
 		}
 	}
 	if unscoped {
-		err = sql.First(&supplyCollection).Error
+		err = sql.First(&exhibitionComment).Error
 	} else {
-		err = sql.Unscoped().First(&supplyCollection).Error
+		err = sql.Unscoped().First(&exhibitionComment).Error
 	}
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -60,10 +61,10 @@ func GetInformationById(ctx context.Context, queryMap map[string][]string, unsco
 			Information: err.Error(),
 		}
 	}
-	return &supplyCollection, nil
+	return &exhibitionComment, nil
 }
 
-func QueryInformation(ctx context.Context, queryMap map[string][]string) ([]Information, int64, error) {
+func QueryExhibitionComment(ctx context.Context, queryMap map[string][]string) ([]ExhibitionComment, int64, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -72,8 +73,9 @@ func QueryInformation(ctx context.Context, queryMap map[string][]string) ([]Info
 	default:
 		sql = db.SqlDB
 	}
-	supplyCollections := make([]Information, 0)
-	sql, num, err := plugin.ProcessQuery(sql.Table("informations"), queryMap, "informations")
+	exhibitionComments := make([]ExhibitionComment, 0)
+	fmt.Println(queryMap)
+	sql, num, err := plugin.ProcessQuery(sql.Table("exhibition_collections"), queryMap, "exhibition_collections")
 	if err != nil {
 		return nil, 0, plugin.CustomErr{
 			Code:        500,
@@ -81,7 +83,7 @@ func QueryInformation(ctx context.Context, queryMap map[string][]string) ([]Info
 			Information: err.Error(),
 		}
 	}
-	sql = sql.Find(&supplyCollections)
+	sql = sql.Find(&exhibitionComments)
 	err = sql.Error
 	if err != nil {
 		println(err.Error())
@@ -91,10 +93,10 @@ func QueryInformation(ctx context.Context, queryMap map[string][]string) ([]Info
 			Information: err.Error(),
 		}
 	}
-	return supplyCollections, num, nil
+	return exhibitionComments, num, nil
 }
 
-func InsertInformation(ctx context.Context, supplyCollection *Information) (*Information, error) {
+func InsertExhibitionComment(ctx context.Context, exhibitionComment *ExhibitionComment) (*ExhibitionComment, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -103,7 +105,7 @@ func InsertInformation(ctx context.Context, supplyCollection *Information) (*Inf
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Create(supplyCollection)
+	sql = sql.Create(exhibitionComment)
 	err := sql.Error
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -112,10 +114,10 @@ func InsertInformation(ctx context.Context, supplyCollection *Information) (*Inf
 			Information: err.Error(),
 		}
 	}
-	return supplyCollection, nil
+	return exhibitionComment, nil
 }
 
-func DeleteInformation(ctx context.Context, supplyCollection *Information) (int64, error) {
+func DeleteExhibitionComment(ctx context.Context, exhibitionComment *ExhibitionComment) (int64, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -124,7 +126,7 @@ func DeleteInformation(ctx context.Context, supplyCollection *Information) (int6
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Delete(supplyCollection)
+	sql = sql.Delete(exhibitionComment)
 	err := sql.Error
 	if err != nil {
 		return 0, plugin.CustomErr{
@@ -137,7 +139,7 @@ func DeleteInformation(ctx context.Context, supplyCollection *Information) (int6
 	return num, nil
 }
 
-func UpdateInformation(ctx context.Context, supplyCollection *Information, updateMap map[string]interface{}) (*Information, error) {
+func UpdateExhibitionComment(ctx context.Context, exhibitionComment *ExhibitionComment, updateMap map[string]interface{}) (*ExhibitionComment, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -146,7 +148,7 @@ func UpdateInformation(ctx context.Context, supplyCollection *Information, updat
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Model(supplyCollection).Updates(updateMap)
+	sql = sql.Model(exhibitionComment).Updates(updateMap)
 	err := sql.Error
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -155,5 +157,5 @@ func UpdateInformation(ctx context.Context, supplyCollection *Information, updat
 			Information: err.Error(),
 		}
 	}
-	return supplyCollection, nil
+	return exhibitionComment, nil
 }

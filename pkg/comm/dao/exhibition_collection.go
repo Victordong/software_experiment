@@ -8,24 +8,23 @@ import (
 	"software_experiment/pkg/web/plugin"
 )
 
-type Collection struct {
+type ExhibitionCollection struct {
 	gorm.Model
 	CollectedName string `gorm:"type:varchar(32);not null"`
 	Username      string `gorm:"type:varchar(32);not null"`
-	Type          int    `gorm:"not null"`
 	CollectedId   uint   `gorm:"not null"`
 }
 
 func init() {
-	if !db.SqlDB.HasTable("collections") {
-		db.SqlDB.CreateTable(&Collection{})
+	if !db.SqlDB.HasTable("exhibition_collections") {
+		db.SqlDB.CreateTable(&ExhibitionCollection{})
 	} else {
-		db.SqlDB.AutoMigrate(&Collection{})
+		db.SqlDB.AutoMigrate(&ExhibitionCollection{})
 	}
 }
 
-func GetCollectionById(ctx context.Context, queryMap map[string][]string, unscoped bool) (*Collection, error) {
-	var collection Collection
+func GetExhibitionCollectionById(ctx context.Context, queryMap map[string][]string, unscoped bool) (*ExhibitionCollection, error) {
+	var exhibitionCollection ExhibitionCollection
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -34,7 +33,7 @@ func GetCollectionById(ctx context.Context, queryMap map[string][]string, unscop
 	default:
 		sql = db.SqlDB
 	}
-	sql, num, err := plugin.ProcessQuery(sql.Table("collections"), queryMap, "collections")
+	sql, num, err := plugin.ProcessQuery(sql.Table("exhibition_collections"), queryMap, "exhibition_collections")
 	if err != nil {
 		return nil, plugin.CustomErr{
 			Code:        500,
@@ -46,13 +45,13 @@ func GetCollectionById(ctx context.Context, queryMap map[string][]string, unscop
 		return nil, plugin.CustomErr{
 			Code:        404,
 			StatusCode:  404,
-			Information: "collection not found",
+			Information: "exhibition collections not found",
 		}
 	}
 	if unscoped {
-		err = sql.First(&collection).Error
+		err = sql.First(&exhibitionCollection).Error
 	} else {
-		err = sql.Unscoped().First(&collection).Error
+		err = sql.Unscoped().First(&exhibitionCollection).Error
 	}
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -61,10 +60,10 @@ func GetCollectionById(ctx context.Context, queryMap map[string][]string, unscop
 			Information: err.Error(),
 		}
 	}
-	return &collection, nil
+	return &exhibitionCollection, nil
 }
 
-func QueryCollection(ctx context.Context, queryMap map[string][]string) ([]Collection, int64, error) {
+func QueryExhibitionCollection(ctx context.Context, queryMap map[string][]string) ([]ExhibitionCollection, int64, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -73,9 +72,9 @@ func QueryCollection(ctx context.Context, queryMap map[string][]string) ([]Colle
 	default:
 		sql = db.SqlDB
 	}
-	collections := make([]Collection, 0)
+	exhibitionCollections := make([]ExhibitionCollection, 0)
 	fmt.Println(queryMap)
-	sql, num, err := plugin.ProcessQuery(sql.Table("collections"), queryMap, "collections")
+	sql, num, err := plugin.ProcessQuery(sql.Table("exhibition_collections"), queryMap, "exhibition_collections")
 	if err != nil {
 		return nil, 0, plugin.CustomErr{
 			Code:        500,
@@ -83,7 +82,7 @@ func QueryCollection(ctx context.Context, queryMap map[string][]string) ([]Colle
 			Information: err.Error(),
 		}
 	}
-	sql = sql.Find(&collections)
+	sql = sql.Find(&exhibitionCollections)
 	err = sql.Error
 	if err != nil {
 		println(err.Error())
@@ -93,10 +92,10 @@ func QueryCollection(ctx context.Context, queryMap map[string][]string) ([]Colle
 			Information: err.Error(),
 		}
 	}
-	return collections, num, nil
+	return exhibitionCollections, num, nil
 }
 
-func InsertCollection(ctx context.Context, collection *Collection) (*Collection, error) {
+func InsertExhibitionCollection(ctx context.Context, exhibitionCollection *ExhibitionCollection) (*ExhibitionCollection, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -105,7 +104,7 @@ func InsertCollection(ctx context.Context, collection *Collection) (*Collection,
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Create(collection)
+	sql = sql.Create(exhibitionCollection)
 	err := sql.Error
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -114,10 +113,10 @@ func InsertCollection(ctx context.Context, collection *Collection) (*Collection,
 			Information: err.Error(),
 		}
 	}
-	return collection, nil
+	return exhibitionCollection, nil
 }
 
-func DeleteCollection(ctx context.Context, collection *Collection) (int64, error) {
+func DeleteExhibitionCollection(ctx context.Context, exhibitionCollection *ExhibitionCollection) (int64, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -126,7 +125,7 @@ func DeleteCollection(ctx context.Context, collection *Collection) (int64, error
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Delete(collection)
+	sql = sql.Delete(exhibitionCollection)
 	err := sql.Error
 	if err != nil {
 		return 0, plugin.CustomErr{
@@ -139,7 +138,7 @@ func DeleteCollection(ctx context.Context, collection *Collection) (int64, error
 	return num, nil
 }
 
-func UpdateCollection(ctx context.Context, collection *Collection, updateMap map[string]interface{}) (*Collection, error) {
+func UpdateExhibitionCollection(ctx context.Context, exhibitionCollection *ExhibitionCollection, updateMap map[string]interface{}) (*ExhibitionCollection, error) {
 	var sql *gorm.DB
 	ctxValue := ctx.Value("tx")
 	switch ctxValue.(type) {
@@ -148,7 +147,7 @@ func UpdateCollection(ctx context.Context, collection *Collection, updateMap map
 	default:
 		sql = db.SqlDB
 	}
-	sql = sql.Model(collection).Updates(updateMap)
+	sql = sql.Model(exhibitionCollection).Updates(updateMap)
 	err := sql.Error
 	if err != nil {
 		return nil, plugin.CustomErr{
@@ -157,5 +156,5 @@ func UpdateCollection(ctx context.Context, collection *Collection, updateMap map
 			Information: err.Error(),
 		}
 	}
-	return collection, nil
+	return exhibitionCollection, nil
 }

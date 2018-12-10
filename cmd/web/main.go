@@ -1,12 +1,11 @@
 package main
 
 import (
-	"auto_fertilizer_back/pkg/service"
-	"fmt"
+	"software_experiment/pkg/web/router"
 )
 
 func main() {
-	fmt.Println("Listen start")
-	megServer := service.NewShopMessageServer()
-	megServer.Run()
+	app := router.GetRouter()
+
+	app.Run("0.0.0.0:8084")
 }

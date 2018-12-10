@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"auto_fertilizer_back/pkg/comm/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"software_experiment/pkg/comm/model"
 )
 
 func RolesIn(allow []string, has []string) bool {

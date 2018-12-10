@@ -1,12 +1,12 @@
 package middleware
 
 import (
-	"auto_fertilizer_back/pkg/comm/model"
-	"auto_fertilizer_back/pkg/web/controller"
 	"context"
 	"github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"software_experiment/pkg/comm/model"
+	"software_experiment/pkg/web/controller"
 	"time"
 )
 
@@ -24,7 +24,7 @@ var AuthMiddleware, _ = jwt.New(&jwt.GinJWTMiddleware{
 	MaxRefresh:  time.Hour,
 	IdentityKey: identityKey,
 	PayloadFunc: func(data interface{}) jwt.MapClaims {
-		if v, ok := data.(*model.OperatorModel); ok {
+		if v, ok := data.(*model.User); ok {
 			return jwt.MapClaims{
 				identityKey: v.Username,
 			}
