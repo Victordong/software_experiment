@@ -60,9 +60,9 @@ func DeleteSupplyCollection(ctx context.Context, supplyCollectionId uint) (int64
 	return num, err
 }
 
-func PutSupplyCollection(ctx context.Context, shopId uint, updateMap map[string]interface{}) (*model.SupplyCollectionModel, error) {
+func PutSupplyCollection(ctx context.Context, supplyCollectionId uint, updateMap map[string]interface{}) (*model.SupplyCollectionModel, error) {
 	queryMap := make(map[string][]string)
-	queryMap["id"] = []string{strconv.Itoa(int(shopId))}
+	queryMap["id"] = []string{strconv.Itoa(int(supplyCollectionId))}
 	supplyCollectionDao, err := dao.GetSupplyCollectionById(ctx, queryMap, false)
 	if err != nil {
 		return nil, err

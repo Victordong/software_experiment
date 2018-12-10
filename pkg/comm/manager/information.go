@@ -9,15 +9,16 @@ import (
 	"strconv"
 )
 
-func QueryInformations(ctx context.Context, queryMap map[string][]string) (informationModelsRes []model.InformationListNodeModel, num int64, err error) {
+func QueryInformations(ctx context.Context, queryMap map[string][]string) (informationModelsRes []model.InformationModel, num int64, err error) {
 	plugin.CtxQueryMap(ctx, queryMap)
 	informations, num, err := dao.QueryInformation(ctx, queryMap)
-	informationModels := make([]model.InformationListNodeModel, 0)
+	informationModels := make([]model.InformationModel, 0)
 	if err != nil {
-		return make([]model.InformationListNodeModel, 0), 0, nil
+		return make([]model.InformationModel, 0), 0, nil
 	}
 	for _, information := range informations {
-		informationModel := formatter.InformationListNodeDaoToModel(&information)
+		informationModel := formatter.InformationDaoToModel(&information)
+		informationModel.Content = ""
 		informationModels = append(informationModels, *informationModel)
 	}
 	return informationModels, num, nil
@@ -60,9 +61,9 @@ func DeleteInformation(ctx context.Context, informationId uint) (int64, error) {
 	return num, err
 }
 
-func PutInformation(ctx context.Context, shopId uint, updateMap map[string]interface{}) (*model.InformationModel, error) {
+func PutInformation(ctx context.Context, informationId uint, updateMap map[string]interface{}) (*model.InformationModel, error) {
 	queryMap := make(map[string][]string)
-	queryMap["id"] = []string{strconv.Itoa(int(shopId))}
+	queryMap["id"] = []string{strconv.Itoa(int(informationId))}
 	informationDao, err := dao.GetInformationById(ctx, queryMap, false)
 	if err != nil {
 		return nil, err

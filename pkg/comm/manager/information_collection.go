@@ -60,9 +60,9 @@ func DeleteInformationCollection(ctx context.Context, informationCollectionId ui
 	return num, err
 }
 
-func PutInformationCollection(ctx context.Context, shopId uint, updateMap map[string]interface{}) (*model.InformationCollectionModel, error) {
+func PutInformationCollection(ctx context.Context, informationCollectionId uint, updateMap map[string]interface{}) (*model.InformationCollectionModel, error) {
 	queryMap := make(map[string][]string)
-	queryMap["id"] = []string{strconv.Itoa(int(shopId))}
+	queryMap["id"] = []string{strconv.Itoa(int(informationCollectionId))}
 	informationCollectionDao, err := dao.GetInformationCollectionById(ctx, queryMap, false)
 	if err != nil {
 		return nil, err

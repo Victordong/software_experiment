@@ -26,13 +26,3 @@ func ExhibitionDaoToModel(exhibition *dao.Exhibition) *model.ExhibitionModel {
 		VisitNum:  exhibition.VisitNum,
 	}
 }
-
-func ExhibitionListNodeDaoToModel(exhibition *dao.Exhibition) *model.ExhibitionListNodeModel {
-	return &model.ExhibitionListNodeModel{
-		ID:        exhibition.ID,
-		CreatedAt: exhibition.CreatedAt.Format("2006-02-01"),
-		Username:  exhibition.Username,
-		Theme:     exhibition.Theme,
-		VisitNum:  exhibition.VisitNum,
-	}
-}

@@ -9,15 +9,16 @@ import (
 	"strconv"
 )
 
-func QuerySupplies(ctx context.Context, queryMap map[string][]string) (supplyModelsRes []model.SupplyListNodeModel, num int64, err error) {
+func QuerySupplies(ctx context.Context, queryMap map[string][]string) (supplyModelsRes []model.SupplyModel, num int64, err error) {
 	plugin.CtxQueryMap(ctx, queryMap)
 	supplies, num, err := dao.QuerySupply(ctx, queryMap)
-	supplyModels := make([]model.SupplyListNodeModel, 0)
+	supplyModels := make([]model.SupplyModel, 0)
 	if err != nil {
-		return make([]model.SupplyListNodeModel, 0), 0, nil
+		return make([]model.SupplyModel, 0), 0, nil
 	}
 	for _, supply := range supplies {
-		supplyModel := formatter.SupplyListNodeDaoToModel(&supply)
+		supplyModel := formatter.SupplyDaoToModel(&supply)
+		supplyModel.Content = ""
 		supplyModels = append(supplyModels, *supplyModel)
 	}
 	return supplyModels, num, nil
@@ -60,9 +61,9 @@ func DeleteSupply(ctx context.Context, supplyId uint) (int64, error) {
 	return num, err
 }
 
-func PutSupply(ctx context.Context, shopId uint, updateMap map[string]interface{}) (*model.SupplyModel, error) {
+func PutSupply(ctx context.Context, supplyId uint, updateMap map[string]interface{}) (*model.SupplyModel, error) {
 	queryMap := make(map[string][]string)
-	queryMap["id"] = []string{strconv.Itoa(int(shopId))}
+	queryMap["id"] = []string{strconv.Itoa(int(supplyId))}
 	supplyDao, err := dao.GetSupplyById(ctx, queryMap, false)
 	if err != nil {
 		return nil, err

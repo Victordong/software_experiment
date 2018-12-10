@@ -60,9 +60,9 @@ func DeleteExhibitionComment(ctx context.Context, exhibitionCommentId uint) (int
 	return num, err
 }
 
-func PutExhibitionComment(ctx context.Context, shopId uint, updateMap map[string]interface{}) (*model.ExhibitionCommentModel, error) {
+func PutExhibitionComment(ctx context.Context, exhibitionCommentId uint, updateMap map[string]interface{}) (*model.ExhibitionCommentModel, error) {
 	queryMap := make(map[string][]string)
-	queryMap["id"] = []string{strconv.Itoa(int(shopId))}
+	queryMap["id"] = []string{strconv.Itoa(int(exhibitionCommentId))}
 	exhibitionCommentDao, err := dao.GetExhibitionCommentById(ctx, queryMap, false)
 	if err != nil {
 		return nil, err

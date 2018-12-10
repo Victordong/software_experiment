@@ -19,16 +19,6 @@ func SupplyModelToDao(informationModel *model.SupplyModel) *dao.Supply {
 	}
 }
 
-func SupplyListNodeDaoToModel(information *dao.Supply) *model.SupplyListNodeModel {
-	return &model.SupplyListNodeModel{
-		ID:        information.ID,
-		CreatedAt: information.CreatedAt.Format("2006-02-01"),
-		Username:  information.Username,
-		Name:      information.Name,
-		VisitNum:  information.VisitNum,
-	}
-}
-
 func SupplyDaoToModel(information *dao.Supply) *model.SupplyModel {
 	return &model.SupplyModel{
 		ID:        information.ID,

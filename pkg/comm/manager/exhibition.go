@@ -9,15 +9,16 @@ import (
 	"strconv"
 )
 
-func QueryExhibitions(ctx context.Context, queryMap map[string][]string) (exhibitionModelsRes []model.ExhibitionListNodeModel, num int64, err error) {
+func QueryExhibitions(ctx context.Context, queryMap map[string][]string) ([]model.ExhibitionModel, int64, error) {
 	plugin.CtxQueryMap(ctx, queryMap)
 	exhibitions, num, err := dao.QueryExhibition(ctx, queryMap)
-	exhibitionModels := make([]model.ExhibitionListNodeModel, 0)
+	exhibitionModels := make([]model.ExhibitionModel, 0)
 	if err != nil {
-		return make([]model.ExhibitionListNodeModel, 0), 0, nil
+		return make([]model.ExhibitionModel, 0), 0, nil
 	}
 	for _, exhibition := range exhibitions {
-		exhibitionModel := formatter.ExhibitionListNodeDaoToModel(&exhibition)
+		exhibitionModel := formatter.ExhibitionDaoToModel(&exhibition)
+		exhibitionModel.Content = ""
 		exhibitionModels = append(exhibitionModels, *exhibitionModel)
 	}
 	return exhibitionModels, num, nil
@@ -60,9 +61,9 @@ func DeleteExhibition(ctx context.Context, exhibitionId uint) (int64, error) {
 	return num, err
 }
 
-func PutExhibition(ctx context.Context, shopId uint, updateMap map[string]interface{}) (*model.ExhibitionModel, error) {
+func PutExhibition(ctx context.Context, exhibitionId uint, updateMap map[string]interface{}) (*model.ExhibitionModel, error) {
 	queryMap := make(map[string][]string)
-	queryMap["id"] = []string{strconv.Itoa(int(shopId))}
+	queryMap["id"] = []string{strconv.Itoa(int(exhibitionId))}
 	exhibitionDao, err := dao.GetExhibitionById(ctx, queryMap, false)
 	if err != nil {
 		return nil, err
