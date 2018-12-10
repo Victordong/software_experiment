@@ -6,12 +6,10 @@ import (
 	"software_experiment/pkg/comm/model"
 )
 
-func RolesIn(allow []string, has []string) bool {
+func RolesIn(allow []string, has string) bool {
 	for _, a := range allow {
-		for _, h := range has {
-			if a == h {
-				return true
-			}
+		if a == has {
+			return true
 		}
 
 	}
@@ -27,8 +25,8 @@ func RolesFilterMidlle(handle gin.HandlerFunc, roles []string) gin.HandlerFunc {
 			})
 			return
 		}
-		currentUserModel := currentUser.(*model.OperatorModel)
-		if RolesIn(roles, currentUserModel.RoleNames) {
+		currentUserModel := currentUser.(*model.UserModel)
+		if RolesIn(roles, currentUserModel.Role) {
 			handle(c)
 		} else {
 			c.JSON(http.StatusForbidden, gin.H{
