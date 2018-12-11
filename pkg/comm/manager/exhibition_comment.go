@@ -68,6 +68,9 @@ func PutExhibitionComment(ctx context.Context, exhibitionCommentId uint, updateM
 		return nil, err
 	}
 	args := make(map[string]interface{})
+	if v, ok := updateMap["content"]; ok {
+		args["content"] = v
+	}
 	exhibitionCommentDao, err = dao.UpdateExhibitionComment(ctx, exhibitionCommentDao, args)
 	if err != nil {
 		return nil, err

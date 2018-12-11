@@ -13,20 +13,6 @@ func QueryExhibitionCollections(ctx context.Context, queryMap map[string][]strin
 		return nil, 0, err
 	}
 
-	for index, exhibitionCollection := range exhibitionCollections {
-		user, err := manager.GetUserByUsername(ctx, exhibitionCollection.Username, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		exhibitionCollections[index].User = user
-		exhibitionModel, err := manager.GetExhibitionById(ctx, exhibitionCollection.CollectedId, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		exhibitionModel.Content = ""
-		exhibitionCollections[index].Exhibition = exhibitionModel
-	}
-
 	return exhibitionCollections, num, err
 }
 

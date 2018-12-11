@@ -68,6 +68,9 @@ func PutInformationComment(ctx context.Context, informationCommentId uint, updat
 		return nil, err
 	}
 	args := make(map[string]interface{})
+	if v, ok := updateMap["content"]; ok {
+		args["content"] = v
+	}
 	informationCommentDao, err = dao.UpdateInformationComment(ctx, informationCommentDao, args)
 	if err != nil {
 		return nil, err

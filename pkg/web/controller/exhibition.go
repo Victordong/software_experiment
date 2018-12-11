@@ -95,37 +95,9 @@ func PutExhibition(ctx context.Context, exhibitionId uint, updateMap map[string]
 }
 
 func DeleteExhibition(ctx context.Context, exhibitionId uint) (int64, error) {
-	tx := database.SqlDB.Begin()
-	newCtx := context.WithValue(ctx, "tx", tx)
-	num, err := manager.DeleteExhibition(newCtx, exhibitionId)
+	num, err := manager.DeleteExhibition(ctx, exhibitionId)
 	if err != nil {
-		tx.Rollback()
 		return 0, nil
 	}
-	collectionQueryMap := make(map[string][]string)
-	collectionQueryMap["collected_id"] = []string{strconv.Itoa(int(exhibitionId))}
-	commentQueryMap := make(map[string][]string)
-	commentQueryMap["commented_id"] = []string{strconv.Itoa(int(exhibitionId))}
-	exhibitionCollections, _, err := manager.QueryExhibitionCollections(newCtx, collectionQueryMap)
-	if err != nil {
-		tx.Rollback()
-		return 0, err
-	}
-	for _, exhibitionCollection := range exhibitionCollections {
-		_, err := manager.DeleteExhibitionCollection(newCtx, exhibitionCollection.ID)
-		if err != nil {
-			tx.Rollback()
-			return 0, err
-		}
-	}
-	exhibitionComments, _, err := manager.QueryExhibitionComments(newCtx, commentQueryMap)
-	for _, exhibitionComment := range exhibitionComments {
-		_, err := manager.DeleteExhibitionComment(newCtx, exhibitionComment.ID)
-		if err != nil {
-			tx.Rollback()
-			return 0, err
-		}
-	}
-	tx.Commit()
 	return num, nil
 }

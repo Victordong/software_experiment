@@ -68,6 +68,9 @@ func PutSupplyComment(ctx context.Context, supplyCommentId uint, updateMap map[s
 		return nil, err
 	}
 	args := make(map[string]interface{})
+	if v, ok := updateMap["content"]; ok {
+		args["content"] = v
+	}
 	supplyCommentDao, err = dao.UpdateSupplyComment(ctx, supplyCommentDao, args)
 	if err != nil {
 		return nil, err

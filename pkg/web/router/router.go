@@ -26,14 +26,7 @@ func GetRouter() *gin.Engine {
 
 	api := router.Group("/api")
 	api.Use(middleware.AuthMiddleware.MiddlewareFunc())
-	api.Use(middleware.CreatedByMiddleWare())
-	api.Use(middleware.DummyMiddleware())
-	api.Use(middleware.ShopLimitMiddle())
 	{
-
-		if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-			v.RegisterValidation("formulaValid", model.FormulaValid)
-		}
 
 		api.GET("/crops", middleware.RolesFilterMidlle(handler.QueryCropsHandler, []string{"admin", "owner", "operator", "collector"}))
 		api.GET("/crops/:id", middleware.RolesFilterMidlle(handler.GetCropByIdHandler, []string{"admin", "owner", "operator", "collector"}))

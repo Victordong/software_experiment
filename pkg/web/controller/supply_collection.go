@@ -13,20 +13,6 @@ func QuerySupplyCollections(ctx context.Context, queryMap map[string][]string) (
 		return nil, 0, err
 	}
 
-	for index, supplyCollection := range supplyCollections {
-		user, err := manager.GetUserByUsername(ctx, supplyCollection.Username, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		supplyCollections[index].User = user
-		supplyModel, err := manager.GetSupplyById(ctx, supplyCollection.CollectedId, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		supplyModel.Content = ""
-		supplyCollections[index].Supply = supplyModel
-	}
-
 	return supplyCollections, num, err
 }
 

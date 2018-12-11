@@ -13,20 +13,6 @@ func QueryInformationComments(ctx context.Context, queryMap map[string][]string)
 		return nil, 0, err
 	}
 
-	for index, informationComment := range informationComments {
-		user, err := manager.GetUserByUsername(ctx, informationComment.Username, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		informationComments[index].User = user
-		informationModel, err := manager.GetInformationById(ctx, informationComment.CommentedId, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		informationModel.Content = ""
-		informationComments[index].Information = informationModel
-	}
-
 	return informationComments, num, err
 }
 

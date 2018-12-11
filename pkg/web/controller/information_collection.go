@@ -13,20 +13,6 @@ func QueryInformationCollections(ctx context.Context, queryMap map[string][]stri
 		return nil, 0, err
 	}
 
-	for index, informationCollection := range informationCollections {
-		user, err := manager.GetUserByUsername(ctx, informationCollection.Username, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		informationCollections[index].User = user
-		informationModel, err := manager.GetInformationById(ctx, informationCollection.CollectedId, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		informationModel.Content = ""
-		informationCollections[index].Information = informationModel
-	}
-
 	return informationCollections, num, err
 }
 

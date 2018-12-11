@@ -13,20 +13,6 @@ func QuerySupplyComments(ctx context.Context, queryMap map[string][]string) ([]m
 		return nil, 0, err
 	}
 
-	for index, supplyComment := range supplyComments {
-		user, err := manager.GetUserByUsername(ctx, supplyComment.Username, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		supplyComments[index].User = user
-		supplyModel, err := manager.GetSupplyById(ctx, supplyComment.CommentedId, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		supplyModel.Content = ""
-		supplyComments[index].Supply = supplyModel
-	}
-
 	return supplyComments, num, err
 }
 

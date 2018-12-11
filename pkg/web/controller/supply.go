@@ -2,8 +2,10 @@ package controller
 
 import (
 	"context"
+	"software_experiment/pkg/comm/database"
 	"software_experiment/pkg/comm/manager"
 	"software_experiment/pkg/comm/model"
+	"strconv"
 )
 
 func QuerySupplys(ctx context.Context, queryMap map[string][]string) ([]model.SupplyModel, int64, error) {
@@ -51,10 +53,44 @@ func PostSupply(ctx context.Context, supplyModel *model.SupplyModel) (*model.Sup
 }
 
 func PutSupply(ctx context.Context, supplyId uint, updateMap map[string]interface{}) error {
-	_, err := manager.PutSupply(ctx, supplyId, updateMap)
+	tx := database.SqlDB.Begin()
+	newCtx := context.WithValue(ctx, "tx", tx)
+	_, err := manager.PutSupply(newCtx, supplyId, updateMap)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
+	if v, ok := updateMap["name"]; ok {
+		collectionChangeMap := make(map[string]interface{})
+		collectionChangeMap["collected_name"] = v
+		commentChangeMap := make(map[string]interface{})
+		commentChangeMap["commented_name"] = v
+		collectionQueryMap := make(map[string][]string)
+		collectionQueryMap["collected_id"] = []string{strconv.Itoa(int(supplyId))}
+		commentQueryMap := make(map[string][]string)
+		commentQueryMap["commented_id"] = []string{strconv.Itoa(int(supplyId))}
+		supplyCollections, _, err := manager.QuerySupplyCollections(newCtx, collectionQueryMap)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		for _, supplyCollection := range supplyCollections {
+			_, err := manager.PutSupplyCollection(newCtx, supplyCollection.ID, collectionChangeMap)
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+		supplyComments, _, err := manager.QuerySupplyComments(newCtx, commentQueryMap)
+		for _, supplyComment := range supplyComments {
+			_, err := manager.PutSupplyComment(newCtx, supplyComment.ID, commentChangeMap)
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+	tx.Commit()
 	return nil
 }
 

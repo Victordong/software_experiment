@@ -2,8 +2,10 @@ package controller
 
 import (
 	"context"
+	"software_experiment/pkg/comm/database"
 	"software_experiment/pkg/comm/manager"
 	"software_experiment/pkg/comm/model"
+	"strconv"
 )
 
 func QueryInformations(ctx context.Context, queryMap map[string][]string) ([]model.InformationModel, int64, error) {
@@ -51,17 +53,79 @@ func PostInformation(ctx context.Context, informationModel *model.InformationMod
 }
 
 func PutInformation(ctx context.Context, informationId uint, updateMap map[string]interface{}) error {
-	_, err := manager.PutInformation(ctx, informationId, updateMap)
+	tx := database.SqlDB.Begin()
+	newCtx := context.WithValue(ctx, "tx", tx)
+	_, err := manager.PutInformation(newCtx, informationId, updateMap)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
+	if v, ok := updateMap["name"]; ok {
+		collectionChangeMap := make(map[string]interface{})
+		collectionChangeMap["collected_name"] = v
+		commentChangeMap := make(map[string]interface{})
+		commentChangeMap["commented_name"] = v
+		collectionQueryMap := make(map[string][]string)
+		collectionQueryMap["collected_id"] = []string{strconv.Itoa(int(informationId))}
+		commentQueryMap := make(map[string][]string)
+		commentQueryMap["commented_id"] = []string{strconv.Itoa(int(informationId))}
+		informationCollections, _, err := manager.QueryInformationCollections(newCtx, collectionQueryMap)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		for _, informationCollection := range informationCollections {
+			_, err := manager.PutInformationCollection(newCtx, informationCollection.ID, collectionChangeMap)
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+		informationComments, _, err := manager.QueryInformationComments(newCtx, commentQueryMap)
+		for _, informationComment := range informationComments {
+			_, err := manager.PutInformationComment(newCtx, informationComment.ID, commentChangeMap)
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+	tx.Commit()
 	return nil
 }
 
 func DeleteInformation(ctx context.Context, informationId uint) (int64, error) {
-	num, err := manager.DeleteInformation(ctx, informationId)
+	tx := database.SqlDB.Begin()
+	newCtx := context.WithValue(ctx, "tx", tx)
+	num, err := manager.DeleteInformation(newCtx, informationId)
 	if err != nil {
+		tx.Rollback()
 		return 0, nil
 	}
+	collectionQueryMap := make(map[string][]string)
+	collectionQueryMap["collected_id"] = []string{strconv.Itoa(int(informationId))}
+	commentQueryMap := make(map[string][]string)
+	commentQueryMap["commented_id"] = []string{strconv.Itoa(int(informationId))}
+	informationCollections, _, err := manager.QueryInformationCollections(newCtx, collectionQueryMap)
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+	for _, informationCollection := range informationCollections {
+		_, err := manager.DeleteInformationCollection(newCtx, informationCollection.ID)
+		if err != nil {
+			tx.Rollback()
+			return 0, err
+		}
+	}
+	informationComments, _, err := manager.QueryInformationComments(newCtx, commentQueryMap)
+	for _, informationComment := range informationComments {
+		_, err := manager.DeleteInformationComment(newCtx, informationComment.ID)
+		if err != nil {
+			tx.Rollback()
+			return 0, err
+		}
+	}
+	tx.Commit()
 	return num, nil
 }

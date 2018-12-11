@@ -13,20 +13,6 @@ func QueryExhibitionComments(ctx context.Context, queryMap map[string][]string) 
 		return nil, 0, err
 	}
 
-	for index, exhibitionComment := range exhibitionComments {
-		user, err := manager.GetUserByUsername(ctx, exhibitionComment.Username, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		exhibitionComments[index].User = user
-		exhibitionModel, err := manager.GetExhibitionById(ctx, exhibitionComment.CommentedId, false)
-		if err != nil {
-			return nil, 0, err
-		}
-		exhibitionModel.Content = ""
-		exhibitionComments[index].Exhibition = exhibitionModel
-	}
-
 	return exhibitionComments, num, err
 }
 

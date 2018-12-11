@@ -14,3 +14,19 @@ type UserModel struct {
 	QqNumber     string `json:"qq_number"`
 	Information  string `json:"information"`
 }
+
+type ChangePasswordUsername struct {
+	Username string `json:"username"`
+}
+
+type ChangePasswordModel struct {
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	OldPassword string `json:"old_password"`
+	Session     string `json:"session"`
+}
+
+type CaptchaModel struct {
+	CaptchaId string `json:"captcha_id"`
+	Result    string `json:"result,omitempty" binding:"required"`
+}
