@@ -6,6 +6,7 @@ import (
 	"software_experiment/pkg/comm/manager"
 	"software_experiment/pkg/comm/model"
 	"software_experiment/pkg/web/plugin"
+	"time"
 )
 
 func ConfirmOldPassword(ctx context.Context, username string, oldPassword string) (bool, error) {
@@ -26,7 +27,7 @@ func ConfirmOldPassword(ctx context.Context, username string, oldPassword string
 
 func SetSessionRedis(ctx context.Context, username string) (string, error) {
 	var session string
-	err := db.RedisClient.Set(session, username, 0).Err()
+	err := db.RedisClient.Set(session, username, 3*time.Minute).Err()
 	if err != nil {
 		return "", plugin.CustomErr{
 			Code:        500,

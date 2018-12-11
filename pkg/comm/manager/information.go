@@ -81,3 +81,16 @@ func PutInformation(ctx context.Context, informationId uint, updateMap map[strin
 	}
 	return formatter.InformationDaoToModel(informationDao), nil
 }
+
+func IncreaseInformationVistNum(ctx context.Context, informationId uint, addNum int) error {
+	queryMap := make(map[string][]string)
+	queryMap["id"] = []string{strconv.Itoa(int(informationId))}
+	informationDao, err := dao.GetInformationById(ctx, queryMap, false)
+	if err != nil {
+		return err
+	}
+	args := make(map[string]interface{})
+	args["visit_num"] = informationDao.VisitNum + addNum
+	informationDao, err = dao.UpdateInformation(ctx, informationDao, args)
+	return err
+}

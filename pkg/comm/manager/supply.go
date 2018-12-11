@@ -87,3 +87,16 @@ func PutSupply(ctx context.Context, supplyId uint, updateMap map[string]interfac
 	}
 	return formatter.SupplyDaoToModel(supplyDao), nil
 }
+
+func IncreaseSupplyVistNum(ctx context.Context, supplyId uint, addNum int) error {
+	queryMap := make(map[string][]string)
+	queryMap["id"] = []string{strconv.Itoa(int(supplyId))}
+	supplyDao, err := dao.GetSupplyById(ctx, queryMap, false)
+	if err != nil {
+		return err
+	}
+	args := make(map[string]interface{})
+	args["visit_num"] = supplyDao.VisitNum + addNum
+	supplyDao, err = dao.UpdateSupply(ctx, supplyDao, args)
+	return err
+}

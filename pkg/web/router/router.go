@@ -15,6 +15,8 @@ func GetRouter() *gin.Engine {
 	router := gin.Default()
 	{
 		router.POST("/login", middleware.AuthMiddleware.LoginHandler)
+		router.GET("/identify", handler.GetIdentifyID)
+		router.POST("/identify", handler.VerifyCaptcha)
 	}
 
 	auth := router.Group("/auth")

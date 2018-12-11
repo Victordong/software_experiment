@@ -30,14 +30,22 @@ func GetExhibitionByIdHandler(c *gin.Context) {
 			"msg":  errModel.Information,
 		})
 		return
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"code":       http.StatusOK,
-			"message":    err,
-			"exhibition": exhibition,
+	}
+	err = plugin.ChangeVisitNumRedis("exhibition", exhibitionId)
+	if err != nil {
+		errModel := err.(plugin.CustomErr)
+		c.JSON(errModel.StatusCode, gin.H{
+			"code": errModel.Code,
+			"msg":  errModel.Information,
 		})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":       http.StatusOK,
+		"message":    err,
+		"exhibition": exhibition,
+	})
+	return
 }
 
 func QueryExhibitionsHandler(c *gin.Context) {

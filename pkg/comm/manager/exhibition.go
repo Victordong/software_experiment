@@ -84,3 +84,16 @@ func PutExhibition(ctx context.Context, exhibitionId uint, updateMap map[string]
 	}
 	return formatter.ExhibitionDaoToModel(exhibitionDao), nil
 }
+
+func IncreaseExhibitionVistNum(ctx context.Context, exhibitionId uint, addNum int) error {
+	queryMap := make(map[string][]string)
+	queryMap["id"] = []string{strconv.Itoa(int(exhibitionId))}
+	exhibitionDao, err := dao.GetExhibitionById(ctx, queryMap, false)
+	if err != nil {
+		return err
+	}
+	args := make(map[string]interface{})
+	args["visit_num"] = exhibitionDao.VisitNum + addNum
+	exhibitionDao, err = dao.UpdateExhibition(ctx, exhibitionDao, args)
+	return err
+}

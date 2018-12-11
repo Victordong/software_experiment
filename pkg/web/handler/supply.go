@@ -30,14 +30,23 @@ func GetSupplyByIdHandler(c *gin.Context) {
 			"msg":  errModel.Information,
 		})
 		return
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    http.StatusOK,
-			"message": err,
-			"supply":  supply,
+	}
+	err = plugin.ChangeVisitNumRedis("supply", supplyId)
+	if err != nil {
+		errModel := err.(plugin.CustomErr)
+		c.JSON(errModel.StatusCode, gin.H{
+			"code": errModel.Code,
+			"msg":  errModel.Information,
 		})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": err,
+		"supply":  supply,
+	})
+	return
+
 }
 
 func QuerySupplysHandler(c *gin.Context) {
