@@ -7,12 +7,15 @@ import (
 	"net/http"
 	"software_experiment/pkg/comm/model"
 	"software_experiment/pkg/web/controller"
+	"software_experiment/pkg/web/plugin"
 	"time"
 )
 
 type login struct {
-	Username string `form:"username" json:"username" binding:"required"`
-	Password string `form:"password" json:"password" binding:"required"`
+	Username      string `form:"username" json:"username" binding:"required"`
+	Password      string `form:"password" json:"password" binding:"required"`
+	CaptchaId     string `json:"captcha_id" binding:"required"`
+	CaptchaResult string `json:"captcha_result"`
 }
 
 var identityKey = "username"
@@ -24,7 +27,7 @@ var AuthMiddleware, _ = jwt.New(&jwt.GinJWTMiddleware{
 	MaxRefresh:  time.Hour,
 	IdentityKey: identityKey,
 	PayloadFunc: func(data interface{}) jwt.MapClaims {
-		if v, ok := data.(*model.User); ok {
+		if v, ok := data.(*model.UserModel); ok {
 			return jwt.MapClaims{
 				identityKey: v.Username,
 			}
@@ -34,7 +37,7 @@ var AuthMiddleware, _ = jwt.New(&jwt.GinJWTMiddleware{
 	IdentityHandler: func(c *gin.Context) interface{} {
 		ctx := context.Background()
 		claims := jwt.ExtractClaims(c)
-		user, _ := controller.GetOperatorByUsername(ctx, claims["username"].(string))
+		user, _ := controller.GetUserByUsername(ctx, claims["username"].(string))
 		return user
 	},
 	Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -43,9 +46,20 @@ var AuthMiddleware, _ = jwt.New(&jwt.GinJWTMiddleware{
 		if err := c.ShouldBind(&loginJSON); err != nil {
 			return "", jwt.ErrMissingLoginValues
 		}
-		user, err := controller.GetOperatorByUsername(ctx, loginJSON.Username)
+		user, err := controller.GetUserByUsername(ctx, loginJSON.Username)
 		if err != nil {
 			return nil, err
+		}
+		ifSuccess, err := controller.VerifyCaptcha(ctx, model.CaptchaModel{CaptchaId: loginJSON.CaptchaId, Result: loginJSON.CaptchaResult})
+		if err != nil {
+			return nil, err
+		}
+		if !ifSuccess {
+			return nil, plugin.CustomErr{
+				Code:        500,
+				StatusCode:  200,
+				Information: "验证错误",
+			}
 		}
 		if user.PasswordHash == controller.GenPasswordHash(ctx, loginJSON.Password) {
 			return user, nil
@@ -53,7 +67,7 @@ var AuthMiddleware, _ = jwt.New(&jwt.GinJWTMiddleware{
 		return nil, jwt.ErrFailedAuthentication
 	},
 	Authorizator: func(data interface{}, c *gin.Context) bool {
-		if v, ok := data.(*model.OperatorModel); ok {
+		if v, ok := data.(*model.UserModel); ok {
 			c.Set("currentUser", v)
 			return true
 		}

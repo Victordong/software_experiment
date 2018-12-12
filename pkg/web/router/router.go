@@ -3,9 +3,6 @@ package router
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"gopkg.in/go-playground/validator.v8"
-	"software_experiment/pkg/comm/model"
 	"software_experiment/pkg/web/handler"
 	"software_experiment/pkg/web/middleware"
 )
@@ -17,6 +14,8 @@ func GetRouter() *gin.Engine {
 		router.POST("/login", middleware.AuthMiddleware.LoginHandler)
 		router.GET("/identify", handler.GetIdentifyID)
 		router.POST("/identify", handler.VerifyCaptcha)
+		router.POST("/users", handler.NewUserHandler)
+
 	}
 
 	auth := router.Group("/auth")
@@ -30,90 +29,67 @@ func GetRouter() *gin.Engine {
 	api.Use(middleware.AuthMiddleware.MiddlewareFunc())
 	{
 
-		api.GET("/crops", middleware.RolesFilterMidlle(handler.QueryCropsHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.GET("/crops/:id", middleware.RolesFilterMidlle(handler.GetCropByIdHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.DELETE("/crops/:id", middleware.RolesFilterMidlle(handler.DeleteCropHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.POST("/crops", middleware.RolesFilterMidlle(handler.NewCropHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.PUT("/crops/:id", middleware.RolesFilterMidlle(handler.ChangeCropHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.GET("/exhibitions", middleware.RolesFilterMidlle(handler.QueryExhibitionsHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.GET("/exhibitions/:id", middleware.RolesFilterMidlle(handler.GetExhibitionByIdHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.DELETE("/exhibitions/:id", middleware.RolesFilterMidlle(handler.DeleteExhibitionHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.POST("/exhibitions", middleware.RolesFilterMidlle(handler.NewExhibitionHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.PUT("/exhibitions/:id", middleware.RolesFilterMidlle(handler.ChangeExhibitionHandler, []string{"admin", "owner", "operator", "collector"}))
 
-		api.GET("/farmlands/:id", middleware.RolesFilterMidlle(handler.GetFarmlandHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.GET("/farmlands", middleware.RolesFilterMidlle(handler.QueryFarmlandsHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.DELETE("/farmlands/:id", middleware.RolesFilterMidlle(handler.DeleteFarmlandHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.POST("/farmlands", middleware.RolesFilterMidlle(handler.NewFarmlandHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.PUT("/farmlands/:id", middleware.RolesFilterMidlle(handler.ChangeFarmlandHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.GET("/exhibition_collections/:id", middleware.RolesFilterMidlle(handler.GetExhibitionCollectionByIdHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.GET("/exhibition_collections", middleware.RolesFilterMidlle(handler.QueryExhibitionCollectionsHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.DELETE("/exhibition_collections/:id", middleware.RolesFilterMidlle(handler.DeleteExhibitionCollectionHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.POST("/exhibition_collections", middleware.RolesFilterMidlle(handler.NewExhibitionCollectionHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.PUT("/exhibition_collections/:id", middleware.RolesFilterMidlle(handler.ChangeExhibitionCollectionHandler, []string{"admin", "owner", "operator", "collector"}))
 
-		api.GET("/farmers", middleware.RolesFilterMidlle(handler.QueryFarmersHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.GET("/farmers/:id", middleware.RolesFilterMidlle(handler.GetFarmerByIdHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.DELETE("/farmers/:id", middleware.RolesFilterMidlle(handler.DeleteFarmerHandler, []string{"admin", "owner"}))
-		api.POST("/farmers", middleware.RolesFilterMidlle(handler.NewFarmerHandler, []string{"admin", "owner"}))
-		api.PUT("/farmers/:id", middleware.RolesFilterMidlle(handler.ChangeFarmerHandler, []string{"admin", "owner"}))
+		api.GET("/exhibitions_comments", middleware.RolesFilterMidlle(handler.QueryExhibitionCommentsHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.GET("/exhibitions_comments/:id", middleware.RolesFilterMidlle(handler.GetExhibitionCommentByIdHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.DELETE("/exhibitions_comments/:id", middleware.RolesFilterMidlle(handler.DeleteExhibitionCommentHandler, []string{"admin", "owner"}))
+		api.POST("/exhibitions_comments", middleware.RolesFilterMidlle(handler.NewExhibitionCommentHandler, []string{"admin", "owner"}))
+		api.PUT("/exhibitions_comments/:id", middleware.RolesFilterMidlle(handler.ChangeExhibitionCommentHandler, []string{"admin", "owner"}))
 
-		api.GET("/farm_types", middleware.RolesFilterMidlle(handler.QueryFarmTypesHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.GET("/farm_types/:id", middleware.RolesFilterMidlle(handler.GetFarmTypeByIdHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.POST("/farm_types", middleware.RolesFilterMidlle(handler.NewFarmTypeHandler, []string{"admin", "owner", "collector"}))
-		api.PUT("/farm_types/:id", middleware.RolesFilterMidlle(handler.ChangeFarmTypeHandler, []string{"admin", "owner", "collector"}))
-		api.DELETE("/farm_types/:id", middleware.RolesFilterMidlle(handler.DeleteFarmTypeHandler, []string{"admin", "owner", "collector"}))
+		api.GET("/imformations", middleware.RolesFilterMidlle(handler.QueryInformationsHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.GET("/imformations/:id", middleware.RolesFilterMidlle(handler.GetInformationByIdHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.POST("/imformations", middleware.RolesFilterMidlle(handler.NewInformationHandler, []string{"admin", "owner", "collector"}))
+		api.PUT("/imformations/:id", middleware.RolesFilterMidlle(handler.ChangeInformationHandler, []string{"admin", "owner", "collector"}))
+		api.DELETE("/imformations/:id", middleware.RolesFilterMidlle(handler.DeleteInformationHandler, []string{"admin", "owner", "collector"}))
 
-		api.GET("/fertilizers/:id", middleware.RolesFilterMidlle(handler.GetFertilizerByIdHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.PUT("/fertilizers/:id", middleware.RolesFilterMidlle(handler.ChangeFertilizerHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.GET("/fertilizers", middleware.RolesFilterMidlle(handler.QueryFertilizersHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.POST("/fertilizers", middleware.RolesFilterMidlle(handler.NewFertilizerHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.DELETE("/fertilizers/:id", middleware.RolesFilterMidlle(handler.DeleteFertilizerHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.GET("/information_collections/:id", middleware.RolesFilterMidlle(handler.GetInformationCollectionByIdHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.PUT("/information_collections/:id", middleware.RolesFilterMidlle(handler.ChangeInformationCollectionHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.GET("/information_collections", middleware.RolesFilterMidlle(handler.QueryInformationCollectionsHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.POST("/information_collections", middleware.RolesFilterMidlle(handler.NewInformationCollectionHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.DELETE("/information_collections/:id", middleware.RolesFilterMidlle(handler.DeleteInformationCollectionHandler, []string{"admin", "owner", "operator", "collector"}))
 
-		api.GET("/shops/:id", middleware.RolesFilterMidlle(handler.GetShopByIdHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.PUT("/shops/:id", middleware.RolesFilterMidlle(handler.ChangeShopHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.GET("/shops", middleware.RolesFilterMidlle(handler.QueryShopsHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.POST("/shops", middleware.RolesFilterMidlle(handler.NewShopHandler, []string{"admin"}))
-		api.DELETE("/shops/:id", middleware.RolesFilterMidlle(handler.DeleteShopHandler, []string{"admin"}))
+		api.GET("/information_comments/:id", middleware.RolesFilterMidlle(handler.GetInformationCommentByIdHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.PUT("/information_comments/:id", middleware.RolesFilterMidlle(handler.ChangeInformationCommentHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.GET("/information_comments", middleware.RolesFilterMidlle(handler.QueryInformationCommentsHandler, []string{"admin", "owner", "operator", "collector"}))
+		api.POST("/information_comments", middleware.RolesFilterMidlle(handler.NewInformationCommentHandler, []string{"admin"}))
+		api.DELETE("/information_comments/:id", middleware.RolesFilterMidlle(handler.DeleteInformationCommentHandler, []string{"admin"}))
 
-		api.GET("/roles/:id", middleware.RolesFilterMidlle(handler.GetRoleByIdHandler, []string{"admin", "owner"}))
-		api.PUT("/roles/:id", middleware.RolesFilterMidlle(handler.ChangeRoleHandler, []string{"admin"}))
-		api.GET("/roles", middleware.RolesFilterMidlle(handler.QueryRolesHandler, []string{"admin", "owner"}))
-		api.POST("/roles", middleware.RolesFilterMidlle(handler.NewRoleHandler, []string{"admin"}))
-		api.DELETE("/roles/:id", middleware.RolesFilterMidlle(handler.DeleteRoleHandler, []string{"admin"}))
+		api.GET("/supplies/:id", middleware.RolesFilterMidlle(handler.GetSupplyByIdHandler, []string{"admin", "owner"}))
+		api.PUT("/supplies/:id", middleware.RolesFilterMidlle(handler.ChangeSupplyHandler, []string{"admin"}))
+		api.GET("/supplies", middleware.RolesFilterMidlle(handler.QuerySupplysHandler, []string{"admin", "owner"}))
+		api.POST("/supplies", middleware.RolesFilterMidlle(handler.NewSupplyHandler, []string{"admin"}))
+		api.DELETE("/supplies/:id", middleware.RolesFilterMidlle(handler.DeleteSupplyHandler, []string{"admin"}))
 
-		api.GET("/operators/:username", middleware.RolesFilterMidlle(handler.GetOperatorByUsernameHandler, []string{"admin", "owner"}))
-		api.PUT("/operators/:username", middleware.RolesFilterMidlle(handler.ChangeOperatorHandler, []string{"admin", "owner"}))
-		api.GET("/operators", middleware.RolesFilterMidlle(handler.QueryOperatorsHandler, []string{"admin", "owner"}))
-		api.DELETE("/operators/:username", middleware.RolesFilterMidlle(handler.DeleteOperatorHandler, []string{"admin", "owner"}))
-		api.POST("/operators", middleware.RolesFilterMidlle(handler.NewOperatorHandler, []string{"admin", "owner"}))
-		api.PUT("/change_password", middleware.RolesFilterMidlle(handler.ChangePassword, []string{"admin", "owner", "operator", "collector"}))
+		api.GET("/supply_comments/:id", middleware.RolesFilterMidlle(handler.GetSupplyCommentByIdHandler, []string{"admin", "owner"}))
+		api.PUT("/supply_comments/:id", middleware.RolesFilterMidlle(handler.ChangeSupplyCommentHandler, []string{"admin"}))
+		api.GET("/supply_comments", middleware.RolesFilterMidlle(handler.QuerySupplyCommentsHandler, []string{"admin", "owner"}))
+		api.POST("/supply_comments", middleware.RolesFilterMidlle(handler.NewSupplyCommentHandler, []string{"admin"}))
+		api.DELETE("/supply_comments/:id", middleware.RolesFilterMidlle(handler.DeleteSupplyCommentHandler, []string{"admin"}))
 
-		api.GET("/stock_flows", middleware.RolesFilterMidlle(handler.QueryStockFlowsHandler, []string{"admin", "owner", "operator"}))
-		api.POST("/stock_flows", middleware.RolesFilterMidlle(handler.NewStockFlowHandler, []string{"admin", "owner", "operator"}))
+		api.GET("/supply_collections/:id", middleware.RolesFilterMidlle(handler.GetSupplyCollectionByIdHandler, []string{"admin", "owner"}))
+		api.PUT("/supply_collections/:id", middleware.RolesFilterMidlle(handler.ChangeSupplyCollectionHandler, []string{"admin"}))
+		api.GET("/supply_collections", middleware.RolesFilterMidlle(handler.QuerySupplyCollectionsHandler, []string{"admin", "owner"}))
+		api.POST("/supply_collections", middleware.RolesFilterMidlle(handler.NewSupplyCollectionHandler, []string{"admin"}))
+		api.DELETE("/supply_collections/:id", middleware.RolesFilterMidlle(handler.DeleteSupplyCollectionHandler, []string{"admin"}))
 
-		api.GET("/stocks", middleware.RolesFilterMidlle(handler.QueryStocksrHandler, []string{"admin", "owner", "operator"}))
-		api.POST("/stocks", middleware.RolesFilterMidlle(handler.NewStockHandler, []string{"admin", "owner", "operator"}))
+		api.GET("/users/:username", middleware.RolesFilterMidlle(handler.GetUserByUsernameHandler, []string{"admin", "owner"}))
+		api.PUT("/users/:username", middleware.RolesFilterMidlle(handler.ChangeUserHandler, []string{"admin", "owner"}))
+		api.GET("/users", middleware.RolesFilterMidlle(handler.QueryUsersHandler, []string{"admin", "owner"}))
+		api.DELETE("/users/:username", middleware.RolesFilterMidlle(handler.DeleteUserHandler, []string{"admin", "owner"}))
+		api.PUT("/change_password", middleware.RolesFilterMidlle(handler.ChangePassWord, []string{"admin", "owner", "operator", "collector"}))
 
-		api.GET("/consume_record_sums", middleware.RolesFilterMidlle(handler.QueryConsumeRecordSumHandler, []string{"admin", "owner", "operator"}))
-		api.GET("/consume_records", middleware.RolesFilterMidlle(handler.QueryConsumeRecordHandler, []string{"admin", "owner", "operator"}))
-		api.POST("/consumes", middleware.RolesFilterMidlle(handler.NewConsume, []string{"admin", "owner", "operator"}))
-		api.GET("/consume_packages", middleware.RolesFilterMidlle(handler.QueryConsumeRecordPackageHandler, []string{"admin", "owner", "operator"}))
-
-		api.POST("/calculate/getElementMixtures", middleware.RolesFilterMidlle(handler.GetElementMixturesHandler, []string{"admin", "owner", "operator"}))
-		api.POST("/calculate/getFertilizerMixtures", middleware.RolesFilterMidlle(handler.GetFertilizerMixturesHandler, []string{"admin", "owner", "operator"}))
-		api.POST("/calculate/getFertilizerPrice", middleware.RolesFilterMidlle(handler.GetFertilizersPriceHandler, []string{"admin", "owner", "operator"}))
-
-		api.GET("/fertilizer_kinds", middleware.RolesFilterMidlle(handler.GetFertilizerKindHandler, []string{"admin", "owner", "operator", "collector"}))
-
-		api.POST("/shop_messages", middleware.RolesFilterMidlle(handler.NewShopMessage, []string{"admin", "owner", "operator", "collector"}))
-		api.POST("/shop_messages/batch", middleware.RolesFilterMidlle(handler.NewShopMessageBatch, []string{"admin", "owner", "collector"}))
-		api.GET("/shop_messages", middleware.RolesFilterMidlle(handler.QueryShopMessage, []string{"admin", "owner", "operator", "collector"}))
-		api.GET("/my/shop_messages", middleware.RolesFilterMidlle(handler.QueryMyShopMessage, []string{"admin", "owner", "operator", "collector"}))
-
-		api.POST("/notices", middleware.RolesFilterMidlle(handler.NewNotice, []string{"admin", "owner", "operator", "collector"}))
-		api.POST("/notices/batch", middleware.RolesFilterMidlle(handler.NewNoticeBatch, []string{"admin", "owner", "operator", "collector"}))
-		api.GET("/notices", middleware.RolesFilterMidlle(handler.QueryNotice, []string{"admin", "owner", "operator", "collector"}))
-
-		api.GET("/farmer_numbers/:id_number", middleware.RolesFilterMidlle(handler.GetFarmerNumberByIdHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.POST("/farmer_numbers", middleware.RolesFilterMidlle(handler.NewFarmerNumberHandler, []string{"admin", "owner", "operator"}))
-		api.GET("/farmer_numbers", middleware.RolesFilterMidlle(handler.QueryFarmNumbers, []string{"admin", "owner", "operator", "collector"}))
-		api.DELETE("/farmer_numbers/:id", middleware.RolesFilterMidlle(handler.DeleteFarmerNumberHandler, []string{"admin", "owner", "operator", "collector"}))
-
-		api.GET("/notice_templates", middleware.RolesFilterMidlle(handler.QueryNoticeTemplates, []string{"admin", "owner", "operator", "collector"}))
-
-		api.GET("/images/crops", middleware.RolesFilterMidlle(handler.GetCropImagesHandler, []string{"admin", "owner", "operator", "collector"}))
-		api.POST("/images/crops", handler.UploadFile)
+		api.POST("/images/icons", handler.UploadIconFile)
 	}
 	router.Static("/static", "./assets")
 	router.Use(cors.Default())

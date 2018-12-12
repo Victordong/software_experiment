@@ -139,6 +139,61 @@ func GetChangePasswordSession(c *gin.Context) {
 func ChangePassWord(c *gin.Context) {
 	ctx := context.Background()
 	ctx = plugin.SetContext(c, ctx)
+	var changePasswordModel model.ChangePasswordModel
+	err := c.ShouldBindJSON(&changePasswordModel)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  err.Error(),
+		})
+		return
+	}
+	_, err = controller.ChangePassword(ctx, changePasswordModel)
+	if err != nil {
+		errModel := err.(plugin.CustomErr)
+		c.JSON(errModel.StatusCode, gin.H{
+			"code": errModel.Code,
+			"msg":  errModel.Information,
+		})
+		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": http.StatusOK,
+			"msg":  "",
+			"ret":  true,
+		})
+		return
+	}
+}
+
+func ChangePasswordOnline(c *gin.Context) {
+	ctx := context.Background()
+	ctx = plugin.SetContext(c, ctx)
+	var changePasswordModel model.ChangePasswordModel
+	err := c.ShouldBindJSON(&changePasswordModel)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": http.StatusInternalServerError,
+			"msg":  err.Error(),
+		})
+		return
+	}
+	_, err = controller.ChangePasswordOnline(ctx, changePasswordModel)
+	if err != nil {
+		errModel := err.(plugin.CustomErr)
+		c.JSON(errModel.StatusCode, gin.H{
+			"code": errModel.Code,
+			"msg":  errModel.Information,
+		})
+		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": http.StatusOK,
+			"msg":  "",
+			"ret":  true,
+		})
+		return
+	}
 }
 
 func ChangeUserHandler(c *gin.Context) {

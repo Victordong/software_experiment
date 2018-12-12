@@ -17,4 +17,5 @@ func ChangeVisitNumRedis(formName string, dataId uint) error {
 	} else {
 		database.RedisClient.Set(strings.Join([]string{formName, strconv.Itoa(int(dataId))}, "_"), 0, 2*time.Minute)
 	}
+	return nil
 }

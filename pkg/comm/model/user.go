@@ -15,15 +15,16 @@ type UserModel struct {
 	Information  string `json:"information"`
 }
 
-type ChangePasswordUsername struct {
+type ForgetPasswordModel struct {
 	Username string `json:"username"`
+	Password string `json:"password"`
+	Session  string `json:"session"`
 }
 
 type ChangePasswordModel struct {
 	Username    string `json:"username"`
 	Password    string `json:"password"`
 	OldPassword string `json:"old_password"`
-	Session     string `json:"session"`
 }
 
 type CaptchaModel struct {
