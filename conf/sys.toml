@@ -6,4 +6,10 @@ url = 'root:wshwoaini@/software?charset=utf8&parseTime=true'
 [static]
 path = './assets'
 
+[change_password_email]
+email = '1103232282@qq.com'
+smtp_host = 'smtp.qq.com'
+smtp_port = 456
+smtp_username = '1103232282@qq.com'
+smtp_password = 'SqqC@110cn119com'
 
