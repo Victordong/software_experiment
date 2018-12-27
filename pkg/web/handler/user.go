@@ -110,7 +110,7 @@ func DeleteUserHandler(c *gin.Context) {
 func GetChangePasswordSession(c *gin.Context) {
 	ctx := context.Background()
 	ctx = plugin.SetContext(c, ctx)
-	changePassword := model.ChangePasswordUsername{}
+	changePassword := model.ForgetPasswordModel{}
 	err := c.BindJSON(&changePassword)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
