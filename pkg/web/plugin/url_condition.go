@@ -33,6 +33,7 @@ func GetCompareMap(key string) (string, string) {
 	compareChoiceMap := make(map[string]string)
 	initCompareMap(&compareChoiceMap)
 	op := "in"
+
 	field := key
 	for compareKey, compareOp := range compareChoiceMap {
 		if strings.HasSuffix(key, compareKey) {
